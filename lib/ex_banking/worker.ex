@@ -18,7 +18,7 @@ defmodule ExBanking.Worker do
       nil -> Map.put(state, currency, amount)
       old_amount -> %{state | currency => old_amount + amount}
     end
-    {:reply, { :ok, Float.round(state[currency]/1, 2) }, state}
+    {:reply, { :ok, Float.floor(state[currency]/1, 2) }, state}
   end
 
   def handle_call({ :withdraw, currency, amount }, _from, state) do
@@ -27,14 +27,14 @@ defmodule ExBanking.Worker do
       old_amount when old_amount < amount -> {:reply, :not_enough_money, state}
       old_amount ->
         state = %{state | currency => old_amount - amount}
-        {:reply, { :ok, Float.round(state[currency]/1, 2) }, state}
+        {:reply, { :ok, Float.floor(state[currency]/1, 2) }, state}
     end
   end
 
   def handle_call({ :get_balance, currency }, _from, state) do
     case state[currency] do
       nil -> {:reply, :wrong_arguments, state}
-      amount -> {:reply, { :ok, Float.round(amount/1, 2) }, state}
+      amount -> {:reply, { :ok, Float.floor(amount/1, 2) }, state}
     end
   end
 
